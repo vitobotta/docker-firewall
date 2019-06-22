@@ -21,11 +21,13 @@ fi
 
 iptables -F $CHAIN
 
+iptables -A $CHAIN -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A $CHAIN -i lo -j ACCEPT
+
 iptables -A $CHAIN -p tcp --tcp-flags ALL NONE -j DROP
 iptables -A $CHAIN -p tcp ! --syn -m state --state NEW -j DROP
 iptables -A $CHAIN -p tcp --tcp-flags ALL ALL -j DROP
 
-iptables -A $CHAIN -i lo -j ACCEPT
 iptables -A $CHAIN -p tcp --match multiport --dports $OPEN_PORTS -j RETURN
 
 [ -n "$ACCEPT_ALL_FROM" ] && iptables -A $CHAIN -s $ACCEPT_ALL_FROM -j RETURN
