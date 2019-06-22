@@ -13,7 +13,11 @@ trap cleanup TERM
 
 echo "Configuring firewall..."
 
-[ 0 -ne $? ] && iptables -N $CHAIN
+iptables -S $CHAIN
+
+if [ 0 -ne $? ]; then
+  iptables -N $CHAIN
+fi
 
 iptables -F $CHAIN
 
@@ -24,7 +28,7 @@ iptables -A $CHAIN -p tcp --tcp-flags ALL ALL -j DROP
 iptables -A $CHAIN -i lo -j ACCEPT
 iptables -A $CHAIN -p tcp --match multiport --dports $OPEN_PORTS -j RETURN
 
-[ -z "$ACCEPT_ALL_FROM" ] || echo iptables -A $CHAIN -s $ACCEPT_ALL_FROM -j RETURN
+[ -n "$ACCEPT_ALL_FROM" ] && iptables -A $CHAIN -s $ACCEPT_ALL_FROM -j RETURN
 
 iptables -A $CHAIN -j DROP
 iptables -S $CHAIN
